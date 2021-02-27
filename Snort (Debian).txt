@@ -1,0 +1,49 @@
+﻿Snort (Debian)
+
+
+1. Installing Snort
+   1. $ apt-get install snort
+   2. $ vi /etc/apt/snort
+      1. Add this line to the end :: deb http://deb.debian.org/debian buster main
+   3. $ apt update -y
+   4. Configure snort with default options
+2. Disable Firewall
+   1. $ ufw status
+      1. If enabled :: ufw disable
+3. Running snort
+   1. $ snort -k none (checksum-mode) -l /path/to/log/directory -c /path/to/rule/file -r /path/to/.pcap/file
+      1. Only use -r when not sniffing live traffic directly with snort
+      2. Use ctrl-Z to stop live packet sniffing
+      3. .pcap files created by snort can be replayed in snort with -r
+4. Capturing Packets
+   1. Snort
+      1. When running snort without -r, snort will sniff live traffic packets
+      2. These captures are saved in the logs folder and can be replayed using -r
+   2. Wireshark
+      1. Depending on your needs, you may use wireshark beforehand and use those packet captures in snort
+      2. Configure wireshark to ignore “any” interface in Settings
+      3. Begin sniffing, stop when needed, and save .pcap file
+5. Writing snort rules
+   1. Create an ASCII text file with a name ending with “.rules”
+   2. Each rule must follow same basic format
+      1. Action protocol src-ip src-port [ -> or <> ] dest-ip dest-port (msg:”message“;sid:#######;)
+      2. There are many other dynamic keywords you can use to further narrow your results or filter your logs (rev, flags, content, etc.)
+      3. It’s important to use a semicolon (;) after the last dynamic keyword in a rule. This indicates the end of one rule and that the next one can begin
+   3. Set important rules with the “alert” action to see them in the alerts file.
+      1. This is generally used to pick out important indicators for intrusion, attempted intrusion, or scans of the system
+6. Testing snort rules against nmap
+   1. Basic fullstack.rules
+      1. alert tcp 192.168.56.106 any -> 192.168.56.105 any (msg:"Metasploitable NMAP Scan";sid:1000001;rev:0;)
+         1. This rule identifies any tcp scan coming from a known malicious machine on the network to the host machine.
+      2. alert tcp any any -> 192.168.56.105 any (msg:"NMAP Null Scan";flags:0;sid:1000002;rev:0;)
+         1. This rule identifies the null tcp scan to the host machine
+      3. alert icmp any any -> 192.168.56.105 any (msg:"NMAP Ping Scan”;sid:1000003;rev:0;)
+         1. This rule identifies ping attempts at the host
+   2. Bypassing basic.fullstack.rules
+      1. $ nmap -sX -S 192.168.56.110 192.168.56.105 -e eth0
+         1. This will spoof the ip address so it looks as if it is coming from elsewhere and will not throw an alert
+      2. $ nmap -sF -S 192.168.56.110 192.168.56.105 -e eth0
+         1. A null scan sends 0 flags, so sending a scan that has at least one flag will not throw an alert
+         2. We still need to spoof the ip address here so it does not throw an alert for the first rule
+      3. $ nmap -sP 192.168.56.105 (-sn on newer nmap versions)
+         1. Nmap masks this ping scan with ARP requests
