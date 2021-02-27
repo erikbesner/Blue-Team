@@ -1,0 +1,7 @@
+alert tcp 192.168.56.106 any -> 192.168.56.105 any (msg:"Metasploitable NMAP Scan";sid:1000001;rev:0;)
+
+alert tcp any any -> 192.168.56.105 any (msg:"NMAP Null Scan";sid:1000002;flags:0;rev:0;)
+
+alert icmp any any -> 192.168.56.105 any (msg:"NMAP Ping Scan";sid:1000003;rev:0;)
+
+
