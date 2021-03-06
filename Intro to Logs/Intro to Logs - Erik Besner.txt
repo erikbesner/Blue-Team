@@ -1,0 +1,75 @@
+﻿Pcap
+1. Looks like communication with a Windows server for updates and downloads
+2. Qemu pops up so possibly for a virtual machine
+
+
+Web Proxies
+1. Http GET requests are being made
+2. There are two HTTP status codes: 304 - not modified & 200 - OK
+3. Each line uses the same proxy service
+   1. Each line has different cache resource codes - https://knowledge.broadcom.com/external/article/167160/what-are-the-cache-hitmiss-codes-results.html
+   2. Proxy service directs traffic through the service then to the destination; middleman
+
+
+Firewalls
+1. TCP is allowed by UFW
+2. Destination port 80 is allowed by UFW
+3. 3 different IP addresses are found in the log
+4. Bootp - bootstrap protocol is most likely what is being blocked on UDP:67
+   1. This is typically an exploit to bypass security using udp protocol
+
+
+Netflow
+1. The users are visiting Google, Facebook, Linkedin, Twitter, and Amazon
+2. There are 24 unique clients
+   1. You can see this by clicking on the Hosts dropdown.
+3. 10.0.3.15 is searching for exploits and doing research on Kali tools, but I can’t see who he is targeting
+4. 192.168.56.102 is the most common server being used by clients
+   1. You can see this by going to the Flows tab and sorting by Servers
+
+
+DNS
+1. Headers
+   1. $1 – date/time
+   2. $2 – source ip
+   3. $3 – source port
+   4. $4 – dest ip
+   5. $5 – dest port
+   6. $6 – ?packet size? # # # #
+   7. $7 – domain/website
+   8. $8 – dns 
+   9. $9 – ?dns ip addresses? # # # #
+2. 192.168.1.254,192.168.15.1,192.168.15.2,192.168.15.4,192.168.1.64 are the actors communicating
+3. Shorter log lines are queries; longer log lines are responses
+4. Most websites being queried are name servers
+
+
+Host logs
+1. The description of the process happening is on the right
+2. It appears that Veer is operating VMWare Fusion which is attempting to move file, which the system pauses on and then allows, and the process continues
+
+
+Linux syslog
+1. The hostname is debian
+2. The system is mounting a new usb storage device
+3. Interesting locations
+   1. /sys/devices/
+   2. /dev/sdb1
+   3. /media/corey/veer
+4. USB Mass Storage Device
+5. Veer
+6. This could be an opportunistic attack using a USB (USB drop attack)
+
+
+Scripting
+1. There are 27253 src IP and 123 dst IP
+   1. $cat iptablesyslog | awk ‘{print $[12-14]}’ | grep SRC > <file>
+   2. $cat iptablesyslog | awk ‘{print $[11-15]}’ | grep DST > <file>
+   3. $cat <file> | sort -u > <newfile>
+   4. $wc <newfile>
+2. There are 3 protocols used: TCP, UDP, ICMP
+   1. $cat iptablesyslog | awk ‘{print $[19-22]}’ | grep PROTO > <file>
+   2. $cat <file> | sort -u > <newfile>
+
+
+Unable to complete ‘Challenge’ scripting problems
